@@ -173,19 +173,30 @@ def dataset():
         },
     }
     return data
+
+#Handles list results
 def responsehandler(l):
-    print(l)
     s = ""
     for x in l:
         s = s + x + "\n"
+    if len(l) == 0:
+        s = "Nothing On"
     return s
 
+#Handles Dictionary Results
 def dictionaryhandler(d):
     s = ""
+    check = True
     for key in d.keys():
         s = s + key + " " + "\n".join(d[key]) + "\n"
+        if d[key] != [] and check:
+            check = False
+    if check:
+        s = "Nothing On Today"
     return s
 
+#Locates the TR IDs from the DCU website
+#This must be done to account for multiple rows
 def getdays(x):
     days_id = []
     for i in range(0, len(x)):
@@ -208,6 +219,7 @@ def getdays(x):
                 days_id[len(days_id) - 1].append(additional)
     return days_id
 
+#Builds and returns a string, s
 def timetableparser(x, i, day, data):
     i = i
     t = 2 
@@ -215,21 +227,19 @@ def timetableparser(x, i, day, data):
     s = ""
     while i < len(x) and t < 21:
         if le_flag:
-            #print("Time:", times[t], s)
             data[day][times[t]].append(s)
             le_flag = False
             t = t + 1
             continue
         if x[i] != "":
-            s = x[i+9], "\nIn", x[i+1], "\nWith", x[i+8] + "\n"
-            s = " ".join(str(i) for i in s)
-            #print("Time:", times[t], s)
+            s = "\n", x[i+9], "\nIn ", x[i+1], "\nWith ", x[i+8] + "\n"
+            s = "".join(str(i) for i in s)
+            s = "\n" + s
             data[day][times[t]].append(s)
             i = i + 22
             t += 1
             le_flag = True
         else:
-            #print("Nothing On At:", times[t])
             i = i + 1
             t = t + 1
     return s
@@ -281,9 +291,13 @@ def next(code="CA", year="1"):
     day = dcudates.getday()
     time = dcudates.nexttime()
     if time in days:
-        return run(time, None, code, year)
+        return dictionaryhandler(run(time, None, code, year))
     else:
-        return run(day, time, code, year)
+        return responsehandler(run(day, time, code, year))
+
+def gettoday(code="CA", year="1"):
+    day = dcudates.getday()
+    return run(day, None, code, year)
 
 def main():
     while True:

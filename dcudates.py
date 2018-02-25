@@ -20,7 +20,7 @@ def nexttime():
     now = datetime.datetime.now()
     hour = int(now.strftime("%H"))
     minute = int(now.strftime("%M"))
-    if hour > 17:
+    if hour > 16:
         s = gettomorrow()
         return s
     elif hour < 8:
